@@ -4,7 +4,9 @@ import './index.css';
 
 function Square(props) {
     return (
-        <button className="square" onClick={props.onClick} style={{background: props.star?"yellow":""}}>
+        <button className="square" onClick={props.onClick}
+                style={{background: props.star?"yellow":"",
+                        color: props.value==="O"?"red":"green"}}>
             {props.value}
         </button>
     );
@@ -13,23 +15,21 @@ function Square(props) {
 class Board extends React.Component {
 
     renderSquare(i) {
-        let line = this.props.line ? this.props.line[1] : null;
-        let star = line ? line.some(el=>el===i) : false;
+        const line = this.props.line ? this.props.line[1] : null; // winner line
+        const star = line ? line.some(el=>el===i) : false;
         return <Square value={this.props.squares[i]}
-                       onClick={() => {
-                           this.props.onClick(i);
-                       }}
-                       star={star} key={i}
-        />;
+                       onClick={() => {this.props.onClick(i);}}
+                       star={star} key={i} />;
     }
 
     render() {
-        return <div>{[0, 1, 2].map(el =>
+        return (
+            <div>{[0, 1, 2].map(el =>
                         <div className="board-row" key={el}>
                             {[0, 1, 2].map(em => this.renderSquare(el * 3 + em))}
                         </div>)
-                    }
-        </div>
+                 }
+            </div>);
     }
 }
 
@@ -63,8 +63,7 @@ class Game extends React.Component {
         if (calculateWinner(squares) || squares[tile]) return;
         squares[tile] = this.state.isXFirst ? 'X' : 'O';
         this.setState({
-            history:
-                [...history,{squares: squares, squarePressed: tile}],
+            history: [...history,{squares: squares, squarePressed: tile}],
             isXFirst: !this.state.isXFirst,
             stepNumber: history.length,
             outline: false
@@ -84,6 +83,13 @@ class Game extends React.Component {
         const current = history[this.state.stepNumber];
         const winner= calculateWinner(current.squares);
         let status;
+
+        if (winner)
+            status = 'Выиграл: ' + winner[0];
+        else {
+            status = 'Следующий игрок: ' + (this.state.isXFirst ? 'X' : 'O');
+            if (this.state.stepNumber===9 && history.length > 9) status = 'Ничья'
+        }
 
         const moves = history.map((step, move, arr) => {
             let desc, mv;
@@ -109,48 +115,39 @@ class Game extends React.Component {
             </li>);
         });
 
-        if (winner)
-            status = 'Выиграл: ' + winner[0];
-        else {
-            status = 'Следующий игрок: ' + (this.state.isXFirst ? 'X' : 'O');
-            if (this.state.stepNumber===9 && history.length > 9) status = 'Ничья'
-        }
-
         return (<div>
                 <h1>Крестики-нолики</h1>
                 <div className="game">
                     <div className="game-board">
                         <Board squares={current.squares}
-                               onClick={(i) => {
-                                   this.handleClick(i);
-                               }}
+                               onClick={(i) => {this.handleClick(i);}}
                                line={winner}
                         />
                     </div>
                     <div className="game-info">
-                        <div>{status}</div>
+                        <div><b>{status}</b></div>
                         <ol>{moves}</ol>
                     </div>
                     <div>
-                        <div className="game-set">Сортировка</div>
+                        <div className="game-set"><b>Сортировка</b></div>
                         <div>
-                            <button onClick={() => {
-                                        this.setState({sortAscent: true});
-                                    }}
+                            <button onClick={() => {this.setState({sortAscent: true});}}
                                     disabled={this.state.sortAscent ? "disabled" : ""}>
                                 По возрастанию
                             </button>
                         </div>
                         <div>
-                            <button onClick={() => {
-                                        this.setState({sortAscent: false});
-                                    }}
+                            <button onClick={() => {this.setState({sortAscent: false});}}
                                     disabled={this.state.sortAscent ? "" : "disabled"}>
                                 По убыванию
                             </button>
                         </div>
-                        <div className="game-reset">Играть заново</div>
-                        <div><button onClick={()=>{this.setState(this.initialState());}}>Сброс</button></div>
+                        <div className="game-reset"><b>Играть заново</b></div>
+                        <div>
+                            <button onClick={() => {this.setState(this.initialState());}}>
+                                Сброс
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
