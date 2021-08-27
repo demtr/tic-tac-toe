@@ -7,6 +7,10 @@ ol, ul {
     padding-left: 30px;
 }
 
+h1 {
+    color: blue;
+}
+
 .board-row:after {
     clear: both;
     content: "";
@@ -47,4 +51,14 @@ ol, ul {
 
 .game-info {
     margin-left: 20px;
+    margin-right: 20px;
+}
+
+.game-set {
+    margin-bottom: 13px;
+}
+
+.game-reset {
+    margin-top: 25px;
+    margin-bottom: 13px;
 }
